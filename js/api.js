@@ -106,10 +106,108 @@ const API = (function() {
     }
   }
 
+  // Mock Database Produk untuk pengujian offline / demo
+  let _mockProducts = null;
+  function _getMockProducts() {
+    if (!_mockProducts) {
+      try {
+        const saved = localStorage.getItem('nirbana_mock_products');
+        if (saved) _mockProducts = JSON.parse(saved);
+      } catch (e) {}
+    }
+    if (!_mockProducts || !_mockProducts.length) {
+      _mockProducts = [
+        {
+          ProductID: 'PRD-01',
+          Nama: 'Signature Linen Oversized Shirt',
+          SKU: 'FASH-001',
+          Kategori: 'Fashion',
+          Harga: 185000,
+          HargaCoret: 225000,
+          Stok: 48,
+          Deskripsi: 'Kemeja linen adem premium dengan potongan oversized modern.',
+          FotoUrl: 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=600&auto=format&fit=crop&q=80',
+          Status: 'ACTIVE'
+        },
+        {
+          ProductID: 'PRD-02',
+          Nama: '1-on-1 Branding & UI Design Consultation (1 Hr)',
+          SKU: 'SERV-001',
+          Kategori: 'Services',
+          Harga: 350000,
+          HargaCoret: 500000,
+          Stok: 9999,
+          Deskripsi: 'Sesi konsultasi privat via Google Meet membahas strategi branding dan desain UI.',
+          FotoUrl: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&auto=format&fit=crop&q=80',
+          Status: 'ACTIVE'
+        },
+        {
+          ProductID: 'PRD-03',
+          Nama: 'E-Commerce UI Kit & Wireframe Pack (Figma)',
+          SKU: 'DIGI-001',
+          Kategori: 'Digital Goods',
+          Harga: 125000,
+          HargaCoret: 200000,
+          Stok: 9999,
+          Deskripsi: 'Koleksi 50+ komponen antarmuka e-commerce dan file Figma siap pakai.',
+          FotoUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80',
+          Status: 'ACTIVE'
+        },
+        {
+          ProductID: 'PRD-04',
+          Nama: 'Cold Brew Reserve Coffee 500ml',
+          SKU: 'FNB-001',
+          Kategori: 'FnB',
+          Harga: 38000,
+          HargaCoret: 45000,
+          Stok: 30,
+          Deskripsi: 'Kopi seduh dingin arabika premium dengan rasa manis alami cokelat dan karamel.',
+          FotoUrl: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=600&auto=format&fit=crop&q=80',
+          Status: 'ACTIVE'
+        },
+        {
+          ProductID: 'PRD-05',
+          Nama: 'Compact 65W GaN Fast Charger',
+          SKU: 'ELEC-001',
+          Kategori: 'Electronics',
+          Harga: 249000,
+          HargaCoret: 299000,
+          Stok: 15,
+          Deskripsi: 'Charger cepat multi-port USB-C PD untuk smartphone, tablet, dan laptop.',
+          FotoUrl: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600&auto=format&fit=crop&q=80',
+          Status: 'ACTIVE'
+        },
+        {
+          ProductID: 'PRD-06',
+          Nama: 'Artisanal Butter Croissant (Pack of 2)',
+          SKU: 'FNB-002',
+          Kategori: 'FnB',
+          Harga: 42000,
+          HargaCoret: 50000,
+          Stok: 20,
+          Deskripsi: 'Croissant renyah dengan butter Prancis premium yang wangi dan lumer.',
+          FotoUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&auto=format&fit=crop&q=80',
+          Status: 'ACTIVE'
+        }
+      ];
+      localStorage.setItem('nirbana_mock_products', JSON.stringify(_mockProducts));
+    }
+    return _mockProducts;
+  }
+
+  function _saveMockProducts(list) {
+    _mockProducts = list;
+    try {
+      localStorage.setItem('nirbana_mock_products', JSON.stringify(list));
+    } catch (e) {}
+  }
+
   // Demo Mock Data untuk pengetesan instan tanpa perlu deploy backend lebih dahulu
   function _mockResponse(action, data) {
     return new Promise(resolve => {
       setTimeout(() => {
+        const products = _getMockProducts();
+
         if (action === 'getPublicCatalog') {
           resolve({
             success: true,
@@ -133,81 +231,50 @@ const API = (function() {
                 { id: 'KAT-04', nama: 'FnB', deskripsi: 'Kopi & artisanal snacks', urutan: 4 },
                 { id: 'KAT-05', nama: 'Electronics', deskripsi: 'Gadget & charger', urutan: 5 }
               ],
-              produk: [
-                {
-                  ProductID: 'PRD-01',
-                  Nama: 'Signature Linen Oversized Shirt',
-                  SKU: 'FASH-001',
-                  Kategori: 'Fashion',
-                  Harga: 185000,
-                  HargaCoret: 225000,
-                  Stok: 48,
-                  Deskripsi: 'Kemeja linen adem premium dengan potongan oversized modern.',
-                  FotoUrl: 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=600&auto=format&fit=crop&q=80',
-                  Status: 'ACTIVE'
-                },
-                {
-                  ProductID: 'PRD-02',
-                  Nama: '1-on-1 Branding & UI Design Consultation (1 Hr)',
-                  SKU: 'SERV-001',
-                  Kategori: 'Services',
-                  Harga: 350000,
-                  HargaCoret: 500000,
-                  Stok: 9999,
-                  Deskripsi: 'Sesi konsultasi privat via Google Meet membahas strategi branding dan desain UI.',
-                  FotoUrl: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&auto=format&fit=crop&q=80',
-                  Status: 'ACTIVE'
-                },
-                {
-                  ProductID: 'PRD-03',
-                  Nama: 'E-Commerce UI Kit & Wireframe Pack (Figma)',
-                  SKU: 'DIGI-001',
-                  Kategori: 'Digital Goods',
-                  Harga: 125000,
-                  HargaCoret: 200000,
-                  Stok: 9999,
-                  Deskripsi: 'Koleksi 50+ komponen antarmuka e-commerce dan file Figma siap pakai.',
-                  FotoUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80',
-                  Status: 'ACTIVE'
-                },
-                {
-                  ProductID: 'PRD-04',
-                  Nama: 'Cold Brew Reserve Coffee 500ml',
-                  SKU: 'FNB-001',
-                  Kategori: 'FnB',
-                  Harga: 38000,
-                  HargaCoret: 45000,
-                  Stok: 30,
-                  Deskripsi: 'Kopi seduh dingin arabika premium dengan rasa manis alami cokelat dan karamel.',
-                  FotoUrl: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=600&auto=format&fit=crop&q=80',
-                  Status: 'ACTIVE'
-                },
-                {
-                  ProductID: 'PRD-05',
-                  Nama: 'Compact 65W GaN Fast Charger',
-                  SKU: 'ELEC-001',
-                  Kategori: 'Electronics',
-                  Harga: 249000,
-                  HargaCoret: 299000,
-                  Stok: 15,
-                  Deskripsi: 'Charger cepat multi-port USB-C PD untuk smartphone, tablet, dan laptop.',
-                  FotoUrl: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600&auto=format&fit=crop&q=80',
-                  Status: 'ACTIVE'
-                },
-                {
-                  ProductID: 'PRD-06',
-                  Nama: 'Artisanal Butter Croissant (Pack of 2)',
-                  SKU: 'FNB-002',
-                  Kategori: 'FnB',
-                  Harga: 42000,
-                  HargaCoret: 50000,
-                  Stok: 20,
-                  Deskripsi: 'Croissant renyah dengan butter Prancis premium yang wangi dan lumer.',
-                  FotoUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&auto=format&fit=crop&q=80',
-                  Status: 'ACTIVE'
-                }
-              ]
+              produk: products
             }
+          });
+        } else if (action === 'getProductsAdmin') {
+          resolve({
+            success: true,
+            data: products
+          });
+        } else if (action === 'saveProduct') {
+          const pId = data.id || ('PRD-' + Math.floor(1000 + Math.random() * 9000));
+          const idx = products.findIndex(p => p.ProductID === pId);
+          const newProd = {
+            ProductID: pId,
+            Nama: data.nama || 'Produk Baru',
+            SKU: data.sku || ('SKU-' + Math.floor(100 + Math.random() * 900)),
+            Kategori: data.kategori || 'Fashion',
+            Harga: Number(data.harga) || 0,
+            HargaCoret: Number(data.hargaCoret) || 0,
+            Stok: data.unlimited ? 999999 : (Number(data.stok) || 0),
+            Deskripsi: data.deskripsi || '',
+            FotoUrl: data.photoUrl || (data.photoBase64 ? ('data:' + (data.photoType || 'image/jpeg') + ';base64,' + data.photoBase64) : 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=600'),
+            Status: data.status || 'ACTIVE',
+            FileUrl: data.fileUrl || '',
+            DiperbaruiPada: new Date().toISOString()
+          };
+
+          if (idx > -1) {
+            products[idx] = Object.assign({}, products[idx], newProd);
+          } else {
+            products.unshift(newProd);
+          }
+          _saveMockProducts(products);
+
+          resolve({
+            success: true,
+            message: 'Produk berhasil disimpan ke database!',
+            id: pId
+          });
+        } else if (action === 'deleteProduct') {
+          const updated = products.filter(p => p.ProductID !== data.id);
+          _saveMockProducts(updated);
+          resolve({
+            success: true,
+            message: 'Produk berhasil dihapus dari database.'
           });
         } else if (action === 'createOrder') {
           const ordId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);

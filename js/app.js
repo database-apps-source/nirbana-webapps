@@ -1043,14 +1043,203 @@ const App = (function() {
             <td class="p-3 font-bold">${StrukEngine.formatRupiah(p.Harga)}</td>
             <td class="p-3">${p.Stok}</td>
             <td class="p-3"><span class="status-pill status-pill-ready">${p.Status}</span></td>
-            <td class="p-3 text-right">
-              <button onclick="App.deleteProduct('${p.ProductID}')" class="text-red-500 font-semibold hover:underline">Hapus</button>
+            <td class="p-3 text-right whitespace-nowrap">
+              <button onclick="App.openEditProductModal('${p.ProductID}')" class="text-xs text-[#0891B2] font-bold hover:underline mr-2">Edit</button>
+              <button onclick="App.deleteProduct('${p.ProductID}')" class="text-xs text-red-500 font-semibold hover:underline">Hapus</button>
             </td>
           </tr>
         `).join('');
       }
     } catch (e) {
       showToast('Gagal memuat produk: ' + e.message, 'error');
+    }
+    lucide.createIcons();
+  }
+
+  // ==========================================================================
+  // MODAL PRODUK (TAMBAH / EDIT KE DATABASE)
+  // ==========================================================================
+
+  function openAddProductModal() {
+    document.getElementById('product-modal-title').innerText = 'Tambah Produk Baru';
+    document.getElementById('prod-id').value = '';
+    document.getElementById('prod-nama').value = '';
+    document.getElementById('prod-sku').value = '';
+    document.getElementById('prod-kategori').value = 'Fashion';
+    document.getElementById('prod-status').value = 'ACTIVE';
+    document.getElementById('prod-harga').value = '';
+    document.getElementById('prod-harga-coret').value = '';
+    document.getElementById('prod-stok').value = '10';
+    document.getElementById('prod-stok').disabled = false;
+    document.getElementById('prod-unlimited').checked = false;
+    document.getElementById('prod-deskripsi').value = '';
+    document.getElementById('prod-photo-url').value = '';
+    document.getElementById('prod-file-url').value = '';
+    document.getElementById('prod-photo-file').value = '';
+
+    const img = document.getElementById('prod-preview-img');
+    const placeholder = document.getElementById('prod-preview-placeholder');
+    img.src = '';
+    img.classList.add('hidden');
+    placeholder.classList.remove('hidden');
+
+    document.getElementById('product-modal').classList.remove('hidden');
+    lucide.createIcons();
+  }
+
+  function openEditProductModal(productId) {
+    const p = (state.catalog.produk || []).find(it => it.ProductID === productId);
+    if (!p) {
+      showToast('Data produk tidak ditemukan.', 'error');
+      return;
+    }
+
+    document.getElementById('product-modal-title').innerText = `Edit Produk — ${p.Nama}`;
+    document.getElementById('prod-id').value = p.ProductID || '';
+    document.getElementById('prod-nama').value = p.Nama || '';
+    document.getElementById('prod-sku').value = p.SKU || '';
+    document.getElementById('prod-kategori').value = p.Kategori || 'Fashion';
+    document.getElementById('prod-status').value = p.Status || 'ACTIVE';
+    document.getElementById('prod-harga').value = p.Harga || 0;
+    document.getElementById('prod-harga-coret').value = p.HargaCoret || '';
+    
+    const isUnlimited = (Number(p.Stok) >= 999999 || p.Stok === 'Unlimited');
+    document.getElementById('prod-unlimited').checked = isUnlimited;
+    document.getElementById('prod-stok').value = isUnlimited ? 999999 : (p.Stok || 0);
+    document.getElementById('prod-stok').disabled = isUnlimited;
+
+    document.getElementById('prod-deskripsi').value = p.Deskripsi || '';
+    document.getElementById('prod-photo-url').value = p.FotoUrl || '';
+    document.getElementById('prod-file-url').value = p.FileUrl || '';
+    document.getElementById('prod-photo-file').value = '';
+
+    const img = document.getElementById('prod-preview-img');
+    const placeholder = document.getElementById('prod-preview-placeholder');
+    if (p.FotoUrl) {
+      img.src = p.FotoUrl;
+      img.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+    } else {
+      img.src = '';
+      img.classList.add('hidden');
+      placeholder.classList.remove('hidden');
+    }
+
+    document.getElementById('product-modal').classList.remove('hidden');
+    lucide.createIcons();
+  }
+
+  function closeProductModal() {
+    document.getElementById('product-modal').classList.add('hidden');
+  }
+
+  function toggleUnlimitedStock(checked) {
+    const stokInput = document.getElementById('prod-stok');
+    if (checked) {
+      stokInput.value = 999999;
+      stokInput.disabled = true;
+    } else {
+      stokInput.value = 10;
+      stokInput.disabled = false;
+    }
+  }
+
+  function previewProductImage(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = document.getElementById('prod-preview-img');
+      const placeholder = document.getElementById('prod-preview-placeholder');
+      img.src = e.target.result;
+      img.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function previewProductUrl(url) {
+    const img = document.getElementById('prod-preview-img');
+    const placeholder = document.getElementById('prod-preview-placeholder');
+    if (url && url.trim().length > 5) {
+      img.src = url.trim();
+      img.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+    } else {
+      img.src = '';
+      img.classList.add('hidden');
+      placeholder.classList.remove('hidden');
+    }
+  }
+
+  async function handleProductSubmit(event) {
+    event.preventDefault();
+    const saveBtn = document.getElementById('btn-save-product');
+    const originalText = saveBtn.innerHTML;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Menyimpan...`;
+
+    const id = document.getElementById('prod-id').value.trim();
+    const nama = document.getElementById('prod-nama').value.trim();
+    const sku = document.getElementById('prod-sku').value.trim();
+    const kategori = document.getElementById('prod-kategori').value;
+    const status = document.getElementById('prod-status').value;
+    const harga = Number(document.getElementById('prod-harga').value) || 0;
+    const hargaCoret = Number(document.getElementById('prod-harga-coret').value) || 0;
+    const unlimited = document.getElementById('prod-unlimited').checked;
+    const stok = unlimited ? 999999 : (Number(document.getElementById('prod-stok').value) || 0);
+    const deskripsi = document.getElementById('prod-deskripsi').value.trim();
+    const photoUrl = document.getElementById('prod-photo-url').value.trim();
+    const fileUrl = document.getElementById('prod-file-url').value.trim();
+
+    let photoBase64 = '';
+    let photoName = '';
+    let photoType = '';
+
+    const photoFileInput = document.getElementById('prod-photo-file');
+    if (photoFileInput && photoFileInput.files && photoFileInput.files[0]) {
+      const file = photoFileInput.files[0];
+      photoName = file.name;
+      photoType = file.type;
+      photoBase64 = await toBase64(file);
+    }
+
+    const payload = {
+      id: id,
+      nama: nama,
+      sku: sku,
+      kategori: kategori,
+      status: status,
+      harga: harga,
+      hargaCoret: hargaCoret,
+      stok: stok,
+      unlimited: unlimited,
+      deskripsi: deskripsi,
+      photoUrl: photoUrl,
+      fileUrl: fileUrl,
+      photoBase64: photoBase64,
+      photoName: photoName,
+      photoType: photoType
+    };
+
+    try {
+      const res = await API.call('saveProduct', payload);
+      if (res.success) {
+        showToast(res.message || 'Produk berhasil disimpan ke database!', 'success');
+        closeProductModal();
+        await loadAdminProducts();
+        await fetchCatalog();
+        if (state.currentView === 'pos') renderPosCatalog();
+      } else {
+        showToast('Gagal menyimpan: ' + res.message, 'error');
+      }
+    } catch (err) {
+      showToast('Error koneksi database: ' + err.message, 'error');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = originalText;
+      lucide.createIcons();
     }
   }
 
@@ -1472,6 +1661,13 @@ const App = (function() {
     closeLoginModal,
     handleLoginSubmit,
     deleteProduct,
+    openAddProductModal,
+    openEditProductModal,
+    closeProductModal,
+    toggleUnlimitedStock,
+    previewProductImage,
+    previewProductUrl,
+    handleProductSubmit,
     verifyOrderPayment,
     openWaBlastModal,
     saveStrukTemplate,
