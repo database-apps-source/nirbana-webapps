@@ -1,0 +1,483 @@
+/* ============================================================================
+   NIRBANA COLLECTION — PLATFORM E-COMMERCE & POS MULTI-KATEGORI
+   File: style.css (Design System Modern Neo-Brutalist Soft & Thermal Receipt)
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --color-lime: #D2F63A;
+  --color-lime-hover: #BEF264;
+  --color-lavender: #D8D7FE;
+  --color-lavender-subtle: #F3F2FF;
+  --color-obsidian: #141619;
+  --color-obsidian-surface: #1E2126;
+  --color-surface-white: #FFFFFF;
+  --color-border-subtle: #E4E3F5;
+  --color-text-main: #111827;
+  --color-text-muted: #64748B;
+
+  --radius-app-shell: 28px;
+  --radius-card: 22px;
+  --radius-pill: 9999px;
+  --shadow-soft: 0 12px 30px -6px rgba(0, 0, 0, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
+  --shadow-float: 0 20px 40px -10px rgba(20, 22, 25, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #EEFBC8 0%, #E2F89C 30%, #DEDCFF 70%, #EBEAFA 100%);
+  background-attachment: fixed;
+  color: var(--color-text-main);
+  min-height: 100vh;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* Outer Shell: Modern Tablet/App Terminal Container */
+.app-terminal-shell {
+  width: 100%;
+  max-width: 1440px;
+  min-height: calc(100vh - 32px);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 4px solid var(--color-obsidian);
+  border-radius: var(--radius-app-shell);
+  box-shadow: 0 25px 60px -15px rgba(20, 22, 25, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #C7C5E8;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9D99D4;
+}
+
+/* Top Obsidian Navbar */
+.top-navbar-obsidian {
+  background: var(--color-obsidian);
+  color: #FFFFFF;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 2px solid #23272E;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+/* Brand Pill */
+.brand-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+.brand-icon-dual-arrow {
+  width: 32px;
+  height: 32px;
+  background: var(--color-lime);
+  color: var(--color-obsidian);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 16px;
+}
+
+/* Navigation Pill Tabs */
+.nav-pill-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #1F2228;
+  padding: 4px 6px;
+  border-radius: var(--radius-pill);
+}
+.nav-pill-item {
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #A0AEC0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+.nav-pill-item:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.08);
+}
+.nav-pill-item.active {
+  background: var(--color-lavender);
+  color: var(--color-obsidian);
+}
+
+/* Category Filter Chips */
+.category-chip-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 4px 0 12px 0;
+  scrollbar-width: none;
+}
+.category-chip-row::-webkit-scrollbar {
+  display: none;
+}
+.category-chip {
+  padding: 8px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 13.5px;
+  font-weight: 600;
+  background: #FFFFFF;
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-main);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.category-chip:hover {
+  border-color: #C0BEF0;
+  transform: translateY(-1px);
+}
+.category-chip.active {
+  background: var(--color-obsidian);
+  color: #FFFFFF;
+  border-color: var(--color-obsidian);
+}
+.category-count-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: var(--color-lavender);
+  color: var(--color-obsidian);
+}
+.category-chip.active .category-count-badge {
+  background: var(--color-lime);
+  color: var(--color-obsidian);
+}
+
+/* Product Card Styling */
+.product-card-pos {
+  background: var(--color-surface-white);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-soft);
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+.product-card-pos:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.08);
+  border-color: #D0CEF5;
+}
+.product-card-photo-box {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #F8F9FD;
+  position: relative;
+  overflow: hidden;
+}
+.product-card-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.product-card-pos:hover .product-card-photo {
+  transform: scale(1.04);
+}
+.product-category-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  color: var(--color-obsidian);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* Quantity Stepper Pill */
+.stepper-pill-control {
+  display: inline-flex;
+  align-items: center;
+  background: #F4F3FB;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  gap: 8px;
+}
+.stepper-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  background: var(--color-obsidian);
+  color: #FFFFFF;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.stepper-btn:hover {
+  background: var(--color-lime);
+  color: var(--color-obsidian);
+}
+.stepper-value {
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Status Pill Badges */
+.status-pill {
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 11.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.status-pill-ready {
+  background: #CFFAFE;
+  color: #0891B2;
+}
+.status-pill-progress {
+  background: var(--color-lime);
+  color: var(--color-obsidian);
+}
+.status-pill-canceled {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+.status-pill-completed {
+  background: #F1F5F9;
+  color: #475569;
+}
+
+/* Buttons */
+.btn-dark-pill {
+  background: var(--color-obsidian);
+  color: #FFFFFF;
+  border-radius: var(--radius-pill);
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-dark-pill:hover {
+  background: #23272E;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+.btn-lime-pill {
+  background: var(--color-lime);
+  color: var(--color-obsidian);
+  border-radius: var(--radius-pill);
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-lime-pill:hover {
+  background: var(--color-lime-hover);
+  box-shadow: 0 6px 16px rgba(210, 246, 58, 0.4);
+  transform: translateY(-1px);
+}
+.btn-outline-pill {
+  background: transparent;
+  color: var(--color-text-main);
+  border: 1.5px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-outline-pill:hover {
+  border-color: var(--color-obsidian);
+  background: #FFFFFF;
+}
+
+/* Right POS / Order Details Panel */
+.pos-order-panel {
+  background: #F8F9FE;
+  border-left: 2px solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  height: 100%;
+}
+
+/* Thermal Struk CSS */
+.thermal-receipt {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  background: #FFFFFF;
+  color: #000000;
+  padding: 16px;
+  margin: 0 auto;
+  border: 1px dashed #DDD;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.thermal-receipt.paper-58mm {
+  width: 100%;
+  max-width: 320px;
+}
+.thermal-receipt.paper-80mm {
+  width: 100%;
+  max-width: 440px;
+}
+.receipt-divider {
+  text-align: center;
+  overflow: hidden;
+  margin: 6px 0;
+  letter-spacing: -1px;
+}
+.receipt-lr {
+  display: flex;
+  justify-content: space-between;
+  margin: 3px 0;
+}
+.receipt-center {
+  text-align: center;
+  margin: 4px 0;
+}
+.receipt-box {
+  display: inline-block;
+  border: 2px solid #000;
+  padding: 2px 8px;
+  font-weight: 700;
+}
+.receipt-left-align {
+  text-align: left;
+  margin: 2px 0;
+}
+.receipt-right-align {
+  text-align: right;
+  margin: 2px 0;
+}
+.receipt-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
+}
+
+/* Modals & Slide-Overs */
+.modal-backdrop-blur {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 22, 25, 0.65);
+  backdrop-filter: blur(8px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+.modal-content-card {
+  background: #FFFFFF;
+  border-radius: var(--radius-card);
+  max-width: 680px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-float);
+  border: 1px solid var(--color-border-subtle);
+  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleUp {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Mobile Print Hide */
+@media print {
+  body {
+    background: #FFF;
+    padding: 0;
+  }
+  .app-terminal-shell, .top-navbar-obsidian, .modal-backdrop-blur {
+    display: none !important;
+  }
+}

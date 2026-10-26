@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NIRBANA COLLECTION — Multi-Category Store & POS</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- QRCode Generator (for Thermal Receipts & Invoice Verification) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@2.0.4/dist/qrcode.js"></script>
+  
+  <!-- Custom Design System Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Main Application Terminal Shell (Inspired by Modern Tablet POS / Retail Design) -->
+  <div class="app-terminal-shell">
+    
+    <!-- Top Obsidian Header Bar -->
+    <header class="top-navbar-obsidian">
+      <!-- Brand Logo -->
+      <div class="brand-pill" onclick="App.navigate('storefront')">
+        <div class="brand-icon-dual-arrow">▶▶</div>
+        <div>
+          <span>NIRBANA</span>
+          <span class="text-xs font-normal text-gray-400 block -mt-1">COLLECTION</span>
+        </div>
+      </div>
+
+      <!-- Navigation Switcher Pills -->
+      <nav class="nav-pill-group hidden md:flex">
+        <button id="nav-btn-storefront" class="nav-pill-item active" onclick="App.navigate('storefront')">
+          <i data-lucide="shopping-bag" class="w-4 h-4"></i> Etalase Publik
+        </button>
+        <button id="nav-btn-tracker" class="nav-pill-item" onclick="App.navigate('tracker')">
+          <i data-lucide="history" class="w-4 h-4"></i> Lacak Pesanan
+        </button>
+        <button id="nav-btn-pos" class="nav-pill-item" onclick="App.navigate('pos')">
+          <i data-lucide="calculator" class="w-4 h-4"></i> POS / Kasir
+        </button>
+        <button id="nav-btn-admin" class="nav-pill-item" onclick="App.navigate('admin')">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Admin Panel
+        </button>
+      </nav>
+
+      <!-- Right Header Actions -->
+      <div class="flex items-center gap-3">
+        <!-- Shopping Bag Trigger -->
+        <button onclick="App.toggleCartDrawer(true)" class="flex items-center gap-2 bg-[#23272E] hover:bg-[#2F343E] px-4 py-2 rounded-full text-white text-sm font-semibold transition border border-gray-700">
+          <i data-lucide="shopping-cart" class="w-4 h-4 text-[#D2F63A]"></i>
+          <span class="hidden sm:inline">Bag</span>
+          <span id="header-cart-badge" class="bg-[#D2F63A] text-[#141619] font-bold text-xs px-2 py-0.5 rounded-full">0</span>
+          <span id="header-cart-total" class="font-bold text-xs text-gray-300 ml-1 hidden sm:inline">Rp 0</span>
+        </button>
+
+        <!-- User / Staff Auth Button -->
+        <button id="header-auth-btn" onclick="App.handleAuthClick()" class="btn-outline-pill !py-2 !px-4 text-xs text-white border-gray-700 hover:border-gray-500 hover:bg-[#23272E]">
+          <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+          <span id="header-auth-label">Staff Login</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Mobile Navigation Bar -->
+    <div class="flex md:hidden bg-[#1F2228] p-2 justify-around border-b border-gray-800">
+      <button onclick="App.navigate('storefront')" class="text-xs text-white flex flex-col items-center gap-1 py-1">
+        <i data-lucide="shopping-bag" class="w-4 h-4 text-[#D2F63A]"></i> Etalase
+      </button>
+      <button onclick="App.navigate('tracker')" class="text-xs text-gray-300 flex flex-col items-center gap-1 py-1">
+        <i data-lucide="history" class="w-4 h-4"></i> Lacak
+      </button>
+      <button onclick="App.navigate('pos')" class="text-xs text-gray-300 flex flex-col items-center gap-1 py-1">
+        <i data-lucide="calculator" class="w-4 h-4"></i> Kasir
+      </button>
+      <button onclick="App.navigate('admin')" class="text-xs text-gray-300 flex flex-col items-center gap-1 py-1">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Admin
+      </button>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 1: PUBLIC STOREFRONT (Open Access, No Login Required)            -->
+    <!-- ===================================================================== -->
+    <main id="view-storefront" class="p-4 sm:p-6 flex-1 flex flex-col gap-6">
+      
+      <!-- Hero Promotional Card -->
+      <section class="bg-gradient-to-r from-[#141619] to-[#23272E] text-white rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md relative overflow-hidden border border-gray-800">
+        <div class="relative z-10 max-w-xl">
+          <div class="inline-flex items-center gap-2 bg-[#D2F63A] text-[#141619] font-bold text-xs uppercase px-3 py-1 rounded-full mb-3">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Multi-Category Collection
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+            Koleksi Gaya Hidup, Fashion, Jasa & Produk Digital Terbaik
+          </h1>
+          <p class="text-gray-300 text-sm sm:text-base mt-2">
+            Belanja instan tanpa perlu repot mendaftar. Dilengkapi notifikasi WhatsApp & struk ber-QR resmi otomatis.
+          </p>
+          <div class="flex flex-wrap gap-3 mt-5">
+            <button onclick="App.filterCategory('All')" class="btn-lime-pill !py-2.5 !px-5 text-sm">
+              <i data-lucide="compass" class="w-4 h-4"></i> Jelajahi Semua
+            </button>
+            <button onclick="App.navigate('tracker')" class="btn-outline-pill !py-2.5 !px-5 text-sm !text-white !border-gray-600 hover:!bg-white/10">
+              <i data-lucide="search" class="w-4 h-4"></i> Cek Status Pesanan
+            </button>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center gap-3">
+          <div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 text-center w-36">
+            <i data-lucide="shield-check" class="w-8 h-8 text-[#D2F63A] mx-auto mb-1"></i>
+            <span class="text-xs font-bold block">100% Aman</span>
+            <span class="text-[10px] text-gray-300">Verifikasi QR-HMAC</span>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 text-center w-36">
+            <i data-lucide="zap" class="w-8 h-8 text-[#D8D7FE] mx-auto mb-1"></i>
+            <span class="text-xs font-bold block">Instan Notif</span>
+            <span class="text-[10px] text-gray-300">WhatsApp & Email</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Category Filter & Search Toolbar -->
+      <section class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <!-- Horizontal Scrollable Category Chips -->
+        <div id="category-chips-container" class="category-chip-row flex-1">
+          <!-- Rendered via JS -->
+          <div class="category-chip active" onclick="App.filterCategory('All')">
+            <span>Semua Produk</span>
+            <span class="category-count-badge" id="badge-count-all">0</span>
+          </div>
+        </div>
+
+        <!-- Search Input -->
+        <div class="relative min-w-[260px]">
+          <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+          <input 
+            type="text" 
+            id="storefront-search" 
+            oninput="App.handleSearch(this.value)"
+            placeholder="Cari produk, file, jasa..." 
+            class="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E4E3F5] rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#D8D7FE] shadow-sm"
+          >
+        </div>
+      </section>
+
+      <!-- Product Cards Grid (4 Columns) -->
+      <section id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <!-- Rendered via JS -->
+      </section>
+
+      <!-- Empty State Indicator -->
+      <div id="storefront-empty" class="hidden text-center py-16 bg-white/60 rounded-3xl border border-[#E4E3F5]">
+        <i data-lucide="package-x" class="w-12 h-12 text-gray-400 mx-auto mb-3"></i>
+        <h3 class="text-lg font-bold text-gray-700">Produk Tidak Ditemukan</h3>
+        <p class="text-sm text-gray-500 mt-1">Coba kata kunci pencarian lain atau pilih kategori berbeda.</p>
+        <button onclick="App.resetFilters()" class="btn-outline-pill mt-4 text-xs">Reset Pencarian</button>
+      </div>
+
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 2: ORDER TRACKER (No-Login Phone/Email Lookup)                   -->
+    <!-- ===================================================================== -->
+    <main id="view-tracker" class="hidden p-4 sm:p-8 flex-1 flex flex-col items-center">
+      <div class="max-w-xl w-full">
+        <!-- Search Card -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#E4E3F5] shadow-sm text-center">
+          <div class="w-12 h-12 bg-[#D8D7FE] rounded-full flex items-center justify-center mx-auto mb-4 text-[#141619]">
+            <i data-lucide="history" class="w-6 h-6"></i>
+          </div>
+          <h2 class="text-2xl font-extrabold text-[#111827]">Lacak Status Pesanan Anda</h2>
+          <p class="text-sm text-gray-500 mt-1">
+            Masukkan Nomor WhatsApp, Email, atau ID Pesanan untuk melihat riwayat dan bukti pembayaran.
+          </p>
+
+          <form onsubmit="App.handleTrackSubmit(event)" class="mt-6 flex flex-col sm:flex-row gap-3">
+            <input 
+              type="text" 
+              id="track-input" 
+              placeholder="Contoh: 081234567890 / ORD-2026..." 
+              required
+              class="flex-1 px-4 py-3 bg-[#F8F9FE] border border-[#E4E3F5] rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#D8D7FE]"
+            >
+            <button type="submit" class="btn-dark-pill !py-3">
+              <i data-lucide="search" class="w-4 h-4"></i> Lacak
+            </button>
+          </form>
+        </div>
+
+        <!-- Tracking Results Container -->
+        <div id="tracking-results-container" class="mt-6 space-y-4">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 3: POS / KASIR PANEL (Based on User's Reference Layout!)         -->
+    <!-- ===================================================================== -->
+    <main id="view-pos" class="hidden flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+      
+      <!-- Left 70%: Order Lines & Menu Exploration -->
+      <div class="lg:col-span-8 p-4 sm:p-6 flex flex-col gap-5 overflow-y-auto">
+        
+        <!-- Order Line Section -->
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-extrabold text-[#111827] flex items-center gap-2">
+              Order Line
+            </h2>
+            <!-- Fulfillment Mode Tabs -->
+            <div class="flex items-center gap-1 bg-white p-1 rounded-full border border-[#E4E3F5] text-xs font-semibold">
+              <button onclick="App.setPosFulfillment('Dine In')" id="pos-tab-dinein" class="px-3 py-1 rounded-full bg-[#D8D7FE] text-[#141619]">Dine In / Ambil</button>
+              <button onclick="App.setPosFulfillment('Take Away')" id="pos-tab-takeaway" class="px-3 py-1 rounded-full text-gray-600 hover:text-black">Take Away</button>
+              <button onclick="App.setPosFulfillment('Delivery')" id="pos-tab-delivery" class="px-3 py-1 rounded-full text-gray-600 hover:text-black">Delivery</button>
+            </div>
+          </div>
+
+          <!-- Horizontal Queue of Active Orders -->
+          <div id="pos-order-queue" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            <!-- Rendered via JS (Orders with Ready to Serve, In Progress, Canceled, Completed) -->
+          </div>
+        </div>
+
+        <hr class="border-[#E4E3F5]">
+
+        <!-- Explore Menu & Catalog -->
+        <div>
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+            <h3 class="text-base font-bold text-[#111827]">Explore Menu & Catalog</h3>
+            <!-- POS Category Chips -->
+            <div id="pos-category-chips" class="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- POS Product Cards Grid -->
+          <div id="pos-product-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right 30%: Order Details & Payment Summary Panel (Matching Reference UI) -->
+      <div class="lg:col-span-4 pos-order-panel">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-extrabold text-[#111827]">Order Details</h2>
+          <button onclick="App.clearPosCart()" class="text-xs text-red-500 font-semibold hover:underline">Cancel / Reset</button>
+        </div>
+
+        <!-- Fulfillment Mode Chips -->
+        <div class="grid grid-cols-3 gap-1 bg-white p-1 rounded-full border border-[#E4E3F5] text-xs font-bold text-center mb-4">
+          <div id="pos-mode-badge-dinein" class="py-1.5 rounded-full bg-[#141619] text-white">Dine In</div>
+          <div id="pos-mode-badge-takeaway" class="py-1.5 rounded-full text-gray-600">Take Away</div>
+          <div id="pos-mode-badge-delivery" class="py-1.5 rounded-full text-gray-600">Delivery</div>
+        </div>
+
+        <!-- Customer Name & Table / Note Input -->
+        <div class="space-y-2 mb-4">
+          <input 
+            type="text" 
+            id="pos-customer-name" 
+            placeholder="Customer Name (e.g. John Doe)" 
+            class="w-full px-4 py-2 bg-white border border-[#E4E3F5] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#D8D7FE]"
+          >
+          <input 
+            type="text" 
+            id="pos-customer-phone" 
+            placeholder="WhatsApp Phone (for auto receipt)" 
+            class="w-full px-4 py-2 bg-white border border-[#E4E3F5] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#D8D7FE]"
+          >
+        </div>
+
+        <div class="flex items-center justify-between text-xs font-bold text-gray-500 mb-2">
+          <span>Active Cart</span>
+          <span id="pos-item-count-label">0 items</span>
+        </div>
+
+        <!-- Scrollable Active Cart Items List -->
+        <div id="pos-cart-items-list" class="flex-1 overflow-y-auto space-y-2.5 pr-1 min-h-[180px]">
+          <div class="text-center py-10 text-gray-400 text-xs">
+            <i data-lucide="shopping-bag" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+            Pilih menu dari katalog di sebelah kiri
+          </div>
+        </div>
+
+        <!-- Action Pills: Cooking Request & Voucher Code -->
+        <div class="grid grid-cols-2 gap-2 my-3">
+          <button onclick="App.promptCookingRequest()" class="bg-white hover:bg-gray-50 border border-[#E4E3F5] py-2 px-3 rounded-full text-[11px] font-semibold text-gray-700 flex items-center justify-center gap-1.5">
+            <i data-lucide="plus" class="w-3 h-3"></i> Request / Note
+          </button>
+          <button onclick="App.promptVoucherCode()" class="bg-white hover:bg-gray-50 border border-[#E4E3F5] py-2 px-3 rounded-full text-[11px] font-semibold text-gray-700 flex items-center justify-center gap-1.5">
+            <i data-lucide="ticket" class="w-3 h-3"></i> Voucher Code
+          </button>
+        </div>
+
+        <!-- Total Payment Calculation -->
+        <div class="bg-white p-3.5 rounded-2xl border border-[#E4E3F5] space-y-1.5 mb-4 shadow-sm">
+          <div class="flex items-center justify-between text-xs text-gray-500">
+            <span>Subtotal</span>
+            <span id="pos-summary-subtotal">Rp 0</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-gray-500">
+            <span>Pajak / Biaya (0%)</span>
+            <span>Rp 0</span>
+          </div>
+          <hr class="border-gray-100 my-1">
+          <div class="flex items-center justify-between text-sm font-extrabold text-[#111827]">
+            <span>Total Payment</span>
+            <span id="pos-summary-total" class="text-base text-[#111827]">Rp 0</span>
+          </div>
+        </div>
+
+        <!-- Place Order Button -->
+        <button onclick="App.submitPosOrder()" class="btn-dark-pill !w-full !py-3.5 text-sm !rounded-2xl">
+          <i data-lucide="check-circle" class="w-4 h-4 text-[#D2F63A]"></i> Place Order & Print Struk
+        </button>
+      </div>
+
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- VIEW 4: ADMIN / SUPERADMIN DASHBOARD                                  -->
+    <!-- ===================================================================== -->
+    <main id="view-admin" class="hidden p-4 sm:p-6 flex-1 flex flex-col gap-6">
+      
+      <!-- Admin Sub-Navigation Pills -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[#E4E3F5]">
+        <button id="adm-tab-overview" onclick="App.setAdminSubTab('overview')" class="category-chip active text-xs">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Ringkasan
+        </button>
+        <button id="adm-tab-products" onclick="App.setAdminSubTab('products')" class="category-chip text-xs">
+          <i data-lucide="package" class="w-3.5 h-3.5"></i> Produk & Stok
+        </button>
+        <button id="adm-tab-orders" onclick="App.setAdminSubTab('orders')" class="category-chip text-xs">
+          <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> Pesanan & Verifikasi
+        </button>
+        <button id="adm-tab-crm" onclick="App.setAdminSubTab('crm')" class="category-chip text-xs">
+          <i data-lucide="users" class="w-3.5 h-3.5"></i> CRM & WA Blast
+        </button>
+        <button id="adm-tab-reports" onclick="App.setAdminSubTab('reports')" class="category-chip text-xs">
+          <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> Laporan
+        </button>
+        <button id="adm-tab-struk" onclick="App.setAdminSubTab('struk')" class="category-chip text-xs">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i> Struk & Printer
+        </button>
+        <button id="adm-tab-migration" onclick="App.setAdminSubTab('migration')" class="category-chip text-xs">
+          <i data-lucide="database" class="w-3.5 h-3.5"></i> Migrasi Data
+        </button>
+        <button id="adm-tab-settings" onclick="App.setAdminSubTab('settings')" class="category-chip text-xs">
+          <i data-lucide="settings" class="w-3.5 h-3.5"></i> Pengaturan
+        </button>
+      </div>
+
+      <!-- Sub-View: Overview -->
+      <section id="adm-subview-overview" class="space-y-6">
+        <!-- KPI Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-[#E4E3F5] shadow-sm">
+            <span class="text-xs font-semibold text-gray-500">Penjualan Hari Ini</span>
+            <div id="adm-kpi-sales" class="text-2xl font-extrabold text-[#111827] mt-1">Rp 0</div>
+            <span class="text-[11px] text-green-600 font-semibold flex items-center gap-1 mt-1">
+              <i data-lucide="trending-up" class="w-3 h-3"></i> Transaksi Aktif
+            </span>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-[#E4E3F5] shadow-sm">
+            <span class="text-xs font-semibold text-gray-500">Pesanan Baru</span>
+            <div id="adm-kpi-orders" class="text-2xl font-extrabold text-[#111827] mt-1">0</div>
+            <span id="adm-kpi-awaiting" class="text-[11px] text-amber-600 font-semibold mt-1 block">0 Menunggu Bayar</span>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-[#E4E3F5] shadow-sm">
+            <span class="text-xs font-semibold text-gray-500">Produk Aktif</span>
+            <div id="adm-kpi-products" class="text-2xl font-extrabold text-[#111827] mt-1">0</div>
+            <span class="text-[11px] text-gray-400 mt-1 block">Tersedia di etalase</span>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-[#E4E3F5] shadow-sm">
+            <span class="text-xs font-semibold text-gray-500">Total Customer CRM</span>
+            <div id="adm-kpi-customers" class="text-2xl font-extrabold text-[#111827] mt-1">0</div>
+            <span class="text-[11px] text-[#0891B2] font-semibold mt-1 block">Tersinkronisasi otomatis</span>
+          </div>
+        </div>
+
+        <!-- Recent Orders Mini Table -->
+        <div class="bg-white rounded-2xl border border-[#E4E3F5] overflow-hidden shadow-sm">
+          <div class="p-4 border-b border-[#E4E3F5] flex items-center justify-between">
+            <h3 class="text-sm font-bold text-gray-800">Transaksi Terbaru</h3>
+            <button onclick="App.setAdminSubTab('orders')" class="text-xs font-semibold text-[#0891B2] hover:underline">Lihat Semua →</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-[#F8F9FE] text-gray-500 uppercase tracking-wider text-[11px]">
+                <tr>
+                  <th class="p-3">ID Pesanan</th>
+                  <th class="p-3">Pelanggan</th>
+                  <th class="p-3">Total</th>
+                  <th class="p-3">Metode</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="adm-recent-orders-tbody" class="divide-y divide-gray-100">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sub-View: Products Management -->
+      <section id="adm-subview-products" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-bold text-[#111827]">Katalog Produk & Inventaris</h3>
+          <button onclick="App.openAddProductModal()" class="btn-lime-pill !py-2 !px-4 text-xs">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> + Tambah Produk Baru
+          </button>
+        </div>
+        <div class="bg-white rounded-2xl border border-[#E4E3F5] overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-[#F8F9FE] text-gray-500 uppercase tracking-wider text-[11px]">
+                <tr>
+                  <th class="p-3">Foto</th>
+                  <th class="p-3">Nama Produk & SKU</th>
+                  <th class="p-3">Kategori</th>
+                  <th class="p-3">Harga</th>
+                  <th class="p-3">Stok</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="adm-products-tbody" class="divide-y divide-gray-100">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sub-View: Orders & Payment Verification -->
+      <section id="adm-subview-orders" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-bold text-[#111827]">Daftar Pesanan & Verifikasi Pembayaran</h3>
+          <div class="flex gap-2">
+            <button onclick="App.loadAdminOrders()" class="btn-outline-pill !py-1.5 !px-3 text-xs">
+              <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh
+            </button>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-[#E4E3F5] overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-[#F8F9FE] text-gray-500 uppercase tracking-wider text-[11px]">
+                <tr>
+                  <th class="p-3">Order ID</th>
+                  <th class="p-3">Tanggal</th>
+                  <th class="p-3">Pelanggan</th>
+                  <th class="p-3">Item Pesanan</th>
+                  <th class="p-3">Total</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3">Bukti Transfer</th>
+                  <th class="p-3 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="adm-orders-tbody" class="divide-y divide-gray-100">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sub-View: CRM & WhatsApp Blast -->
+      <section id="adm-subview-crm" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-bold text-[#111827]">Customer Database (CRM)</h3>
+            <p class="text-xs text-gray-500">Sinkronisasi otomatis setiap ada transaksi pelanggan.</p>
+          </div>
+          <button onclick="App.openWaBlastModal()" class="btn-lime-pill !py-2 !px-4 text-xs">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i> Buat WhatsApp Broadcast
+          </button>
+        </div>
+        <div class="bg-white rounded-2xl border border-[#E4E3F5] overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-[#F8F9FE] text-gray-500 uppercase tracking-wider text-[11px]">
+                <tr>
+                  <th class="p-3">Nama Pelanggan</th>
+                  <th class="p-3">Kontak WA</th>
+                  <th class="p-3">Email</th>
+                  <th class="p-3">Segmen</th>
+                  <th class="p-3">Total Belanja</th>
+                  <th class="p-3">Jumlah Order</th>
+                  <th class="p-3 text-right">Chat WA</th>
+                </tr>
+              </thead>
+              <tbody id="adm-crm-tbody" class="divide-y divide-gray-100">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sub-View: Reports -->
+      <section id="adm-subview-reports" class="hidden space-y-4">
+        <h3 class="text-base font-bold text-[#111827]">Laporan Penjualan & Keuangan</h3>
+        <div id="adm-reports-content" class="bg-white p-6 rounded-2xl border border-[#E4E3F5] space-y-4">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+
+      <!-- Sub-View: Struk & Thermal Printer -->
+      <section id="adm-subview-struk" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-bold text-[#111827]">Pengaturan & Uji Cetak Printer Thermal</h3>
+          <button onclick="App.testPrintThermal()" class="btn-dark-pill !py-2 !px-4 text-xs">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i> Uji Cetak Test Struk
+          </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Editor Template -->
+          <div class="bg-white p-5 rounded-2xl border border-[#E4E3F5] space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500">Editor Template Struk (Direktif Teks)</h4>
+            <textarea id="struk-template-textarea" rows="14" class="w-full p-3 font-mono text-xs bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D8D7FE]"></textarea>
+            <button onclick="App.saveStrukTemplate()" class="btn-dark-pill !py-2 !px-4 text-xs">Simpan Template</button>
+          </div>
+          <!-- Printer Hardware Configuration -->
+          <div class="bg-white p-5 rounded-2xl border border-[#E4E3F5] space-y-4">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500">Koneksi & Tipe Printer</h4>
+            <div>
+              <label class="text-xs font-semibold text-gray-700 block mb-1">Metode Pencetakan Bawaan</label>
+              <select id="printer-method-select" class="w-full p-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs">
+                <option value="BROWSER">Dialog Cetak Browser (USB / LAN / Desktop)</option>
+                <option value="BLUETOOTH">Web Bluetooth Langsung (Chrome/Edge Android & PC)</option>
+                <option value="RAWBT">Aplikasi Android RawBT Intent</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-700 block mb-1">Lebar Kertas Thermal</label>
+              <select id="printer-width-select" class="w-full p-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs">
+                <option value="58mm">58 mm (32 Kolom Karakter)</option>
+                <option value="80mm">80 mm (48 Kolom Karakter)</option>
+              </select>
+            </div>
+            <button onclick="App.connectBluetoothPrinter()" class="btn-outline-pill !py-2 !px-4 text-xs w-full">
+              <i data-lucide="bluetooth" class="w-3.5 h-3.5"></i> Hubungkan Printer Bluetooth Sekarang
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sub-View: Database Migration -->
+      <section id="adm-subview-migration" class="hidden space-y-4">
+        <h3 class="text-base font-bold text-[#111827]">Migrasi & Sinkronisasi Database Spreadsheet</h3>
+        <p class="text-xs text-gray-500">Pindahkan data produk, transaksi, atau pelanggan dari spreadsheet lama tanpa mengubah spreadsheet asal.</p>
+        <div class="bg-white p-6 rounded-2xl border border-[#E4E3F5] space-y-4 max-w-xl">
+          <div>
+            <label class="text-xs font-semibold text-gray-700 block mb-1">Link atau ID Spreadsheet Lama</label>
+            <input type="text" id="migration-source-id" placeholder="https://docs.google.com/spreadsheets/d/.../edit" class="w-full p-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-700 block mb-1">Modul yang Dimigrasikan</label>
+            <select id="migration-module-select" class="w-full p-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs">
+              <option value="PRODUK">Katalog Produk</option>
+              <option value="CUSTOMER">Data Pelanggan (CRM)</option>
+              <option value="TRANSAKSI">Riwayat Transaksi</option>
+            </select>
+          </div>
+          <div class="flex gap-3">
+            <button onclick="App.runMigration(true)" class="btn-outline-pill !py-2 !px-4 text-xs flex-1">
+              <i data-lucide="search" class="w-3.5 h-3.5"></i> Simulasi Scan (Dry-Run)
+            </button>
+            <button onclick="App.runMigration(false)" class="btn-lime-pill !py-2 !px-4 text-xs flex-1">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i> Eksekusi Migrasi
+            </button>
+          </div>
+          <div id="migration-log-box" class="p-3 bg-[#141619] text-[#D2F63A] font-mono text-xs rounded-xl hidden"></div>
+        </div>
+      </section>
+
+      <!-- Sub-View: System Settings -->
+      <section id="adm-subview-settings" class="hidden space-y-4">
+        <h3 class="text-base font-bold text-[#111827]">Pengaturan Sistem & Script Properties</h3>
+        <div class="bg-white p-6 rounded-2xl border border-[#E4E3F5] space-y-4 max-w-2xl">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-semibold text-gray-700 block mb-1">Nama Toko</label>
+              <input type="text" id="setting-store-name" class="w-full p-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs">
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-700 block mb-1">Nomor WhatsApp Toko</label>
+              <input type="text" id="setting-store-wa" class="w-full p-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs">
+            </div>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-700 block mb-1">Alamat Toko</label>
+            <input type="text" id="setting-store-address" class="w-full p-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-700 block mb-1">Fonnte WhatsApp API Token</label>
+            <input type="password" id="setting-fonnte-token" placeholder="Masukkan token Fonnte baru jika ingin mengubah" class="w-full p-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs">
+            <span class="text-[10px] text-gray-400 mt-1 block">Tersimpan aman di Script Properties. Tidak dikirim mentah ke browser.</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-semibold text-gray-700 block mb-1">Rekening BCA</label>
+              <input type="text" id="setting-bank-bca" placeholder="Nomor Rekening" class="w-full p-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs">
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-700 block mb-1">Atas Nama BCA</label>
+              <input type="text" id="setting-bank-bca-an" placeholder="Nama Pemilik Rekening" class="w-full p-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs">
+            </div>
+          </div>
+          <button onclick="App.saveSystemSettings()" class="btn-dark-pill !py-2.5 !px-5 text-xs">Simpan Pengaturan</button>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODALS & DRAWERS                                                      -->
+  <!-- ===================================================================== -->
+
+  <!-- 1. Shopping Bag Slide-Over Drawer -->
+  <div id="cart-drawer-backdrop" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex justify-end" onclick="App.toggleCartDrawer(false)">
+    <div class="w-full max-w-md bg-white h-full shadow-2xl flex flex-col p-6 animate-slide-left" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+        <h3 class="text-lg font-extrabold text-[#111827] flex items-center gap-2">
+          <i data-lucide="shopping-bag" class="w-5 h-5 text-[#0891B2]"></i> Keranjang Belanja
+        </h3>
+        <button onclick="App.toggleCartDrawer(false)" class="p-1 rounded-full hover:bg-gray-100">
+          <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+        </button>
+      </div>
+
+      <!-- Cart Items List -->
+      <div id="drawer-cart-items" class="flex-1 overflow-y-auto py-4 space-y-3">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Drawer Bottom Summary -->
+      <div class="pt-4 border-t border-gray-100 space-y-3">
+        <div class="flex justify-between text-sm text-gray-500">
+          <span>Subtotal</span>
+          <span id="drawer-cart-subtotal" class="font-bold text-gray-900">Rp 0</span>
+        </div>
+        <button onclick="App.openCheckoutModal()" class="btn-dark-pill !w-full !py-3.5 text-sm">
+          Lanjut ke Pembayaran →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Customer Checkout Modal (With PG / Manual Bank Transfer & Slip Upload) -->
+  <div id="checkout-modal" class="modal-backdrop-blur hidden">
+    <div class="modal-content-card p-6 sm:p-8">
+      <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+        <h3 class="text-xl font-extrabold text-[#111827]">Konfirmasi Pesanan & Pembayaran</h3>
+        <button onclick="App.closeCheckoutModal()" class="p-1 rounded-full hover:bg-gray-100">
+          <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+        </button>
+      </div>
+
+      <form onsubmit="App.handleCheckoutSubmit(event)" class="mt-6 space-y-5">
+        <!-- Contact Details -->
+        <div>
+          <label class="text-xs font-bold uppercase text-gray-500 tracking-wider block mb-2">1. Data Pelanggan (Tanpa Login)</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input type="text" id="checkout-name" placeholder="Nama Lengkap *" required class="w-full px-4 py-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs focus:ring-2 focus:ring-[#D8D7FE]">
+            <input type="text" id="checkout-phone" placeholder="Nomor WhatsApp * (cth: 0812...)" required class="w-full px-4 py-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs focus:ring-2 focus:ring-[#D8D7FE]">
+          </div>
+          <input type="email" id="checkout-email" placeholder="Alamat Email (opsional untuk invoice PDF)" class="w-full mt-2 px-4 py-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs focus:ring-2 focus:ring-[#D8D7FE]">
+        </div>
+
+        <!-- Fulfillment & Address -->
+        <div>
+          <label class="text-xs font-bold uppercase text-gray-500 tracking-wider block mb-2">2. Pengiriman / Pengambilan</label>
+          <div class="grid grid-cols-3 gap-2 mb-2">
+            <button type="button" onclick="App.setCheckoutFulfillment('Shipping')" id="co-tab-shipping" class="py-2 text-xs font-semibold rounded-xl border border-black bg-black text-white text-center">Kurir Ekspedisi</button>
+            <button type="button" onclick="App.setCheckoutFulfillment('Pick-Up')" id="co-tab-pickup" class="py-2 text-xs font-semibold rounded-xl border border-gray-200 bg-white text-gray-700 text-center">Ambil di Toko</button>
+            <button type="button" onclick="App.setCheckoutFulfillment('Digital')" id="co-tab-digital" class="py-2 text-xs font-semibold rounded-xl border border-gray-200 bg-white text-gray-700 text-center">Akses Digital</button>
+          </div>
+          <textarea id="checkout-address" rows="2" placeholder="Alamat Lengkap Pengiriman *" required class="w-full px-4 py-2 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs focus:ring-2 focus:ring-[#D8D7FE]"></textarea>
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div>
+          <label class="text-xs font-bold uppercase text-gray-500 tracking-wider block mb-2">3. Metode Pembayaran</label>
+          <div class="space-y-2">
+            <label class="flex items-center gap-3 p-3 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl cursor-pointer hover:border-gray-400">
+              <input type="radio" name="payment-method" value="Payment Gateway" checked onchange="App.togglePaymentMethod('PG')" class="text-black">
+              <div class="flex-1">
+                <span class="text-xs font-bold text-gray-900 block">Instant Payment Gateway (QRIS, VA, E-Wallet)</span>
+                <span class="text-[11px] text-gray-500">Verifikasi otomatis instan 24 jam</span>
+              </div>
+              <span class="bg-[#D2F63A] text-black text-[10px] font-bold px-2 py-0.5 rounded-full">Otomatis</span>
+            </label>
+
+            <label class="flex items-center gap-3 p-3 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl cursor-pointer hover:border-gray-400">
+              <input type="radio" name="payment-method" value="Manual Transfer" onchange="App.togglePaymentMethod('MANUAL')" class="text-black">
+              <div class="flex-1">
+                <span class="text-xs font-bold text-gray-900 block">Transfer Bank Manual (BCA / Mandiri)</span>
+                <span class="text-[11px] text-gray-500">Upload bukti transfer setelah pembayaran</span>
+              </div>
+            </label>
+          </div>
+
+          <!-- Manual Transfer Dropzone (Toggled) -->
+          <div id="manual-transfer-container" class="hidden mt-3 p-4 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-3">
+            <div class="text-xs text-amber-900 font-semibold">
+              Transfer ke rekening BCA: <span class="font-mono font-bold">8910-1234-56</span> a/n Nirbana Collection
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-gray-700 block mb-1">Upload Foto / Screenshot Bukti Transfer:</label>
+              <input type="file" id="checkout-proof-file" accept="image/*" class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800">
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Bill & Submit -->
+        <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-gray-500 block">Total Pembayaran</span>
+            <span id="checkout-grand-total" class="text-xl font-extrabold text-[#111827]">Rp 0</span>
+          </div>
+          <button type="submit" id="checkout-submit-btn" class="btn-dark-pill !py-3 !px-6 text-sm">
+            Bayar Sekarang →
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Thermal Struk & Invoice Viewer Modal -->
+  <div id="struk-modal" class="modal-backdrop-blur hidden">
+    <div class="modal-content-card p-6 sm:p-8 max-w-lg">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+        <h3 class="text-base font-extrabold text-[#111827]">Pratinjau Struk & Invoice Digital</h3>
+        <button onclick="App.closeStrukModal()" class="p-1 rounded-full hover:bg-gray-100">
+          <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+        </button>
+      </div>
+
+      <!-- Thermal Receipt Preview Container -->
+      <div id="struk-preview-target" class="my-4 max-h-[60vh] overflow-y-auto p-2 bg-gray-50 rounded-xl">
+        <!-- Rendered via StrukEngine -->
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
+        <button onclick="App.triggerPrintCurrentStruk()" class="btn-dark-pill !py-2.5 !px-4 text-xs flex-1">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak Struk (Thermal)
+        </button>
+        <button onclick="App.shareStrukWhatsApp()" class="btn-lime-pill !py-2.5 !px-4 text-xs">
+          <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Kirim WA
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Staff Auth Login Modal -->
+  <div id="login-modal" class="modal-backdrop-blur hidden">
+    <div class="modal-content-card p-6 sm:p-8 max-w-md">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+        <h3 class="text-lg font-extrabold text-[#111827]">Staff & Owner Portal</h3>
+        <button onclick="App.closeLoginModal()" class="p-1 rounded-full hover:bg-gray-100">
+          <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+        </button>
+      </div>
+
+      <form onsubmit="App.handleLoginSubmit(event)" class="mt-5 space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-gray-700 block mb-1">Email / Username</label>
+          <input type="text" id="login-username" required placeholder="owner@nirbana.id / kasir" class="w-full px-4 py-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs focus:ring-2 focus:ring-[#D8D7FE]">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-700 block mb-1">Kata Sandi</label>
+          <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-[#F8F9FE] border border-[#E4E3F5] rounded-xl text-xs focus:ring-2 focus:ring-[#D8D7FE]">
+        </div>
+        <button type="submit" class="btn-dark-pill !w-full !py-3 text-sm mt-2">
+          Masuk ke Back-Office
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- Load JavaScript Modules -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/struk-engine.js"></script>
+  <script src="js/struk-printer.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
